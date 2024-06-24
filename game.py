@@ -93,7 +93,7 @@ def find_move(image_path, ocr, wf, game):
             print(f"\nPlayed: {first_string} at {tuple_values} with {second_string}\n\n")
 
 if __name__ == "__main__":
-    image_path = "images/77eaf055-9426-4dae-b2ff-343d0b966362.jpg"
+    image_path = "tests/test2.jpg"
     ocr = OcrWordfeudBoard(image_path)
     wf = WordFeudBoard()
     game = sc.Game(board="wordfeud", language="fr")

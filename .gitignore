@@ -64,5 +64,4 @@ docs/_build/
 target/
 
 # generated files
-resources/*/*_dictionary\.p
 games

@@ -226,7 +226,7 @@ class OcrWordfeudBoard():
             #cv2.imwrite('images/tmp/ocr_square_'+str(row)+','+str(column)+'.png', square)
 
             if dominant_color == 'white' or dominant_color == 'yellow':
-                letter = self.ocr_tile(square, save_image=True, comments=f"{row},{column}")
+                letter = self.ocr_tile(square, save_image=False, comments="")
                 self.update_square(row, column, letter)
                 board_letters = board_letters + letter + " "
             count += 1
