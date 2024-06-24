@@ -17,7 +17,7 @@ full_saved_games_dir = os.path.join(script_dir, "../games/")
 class  Game:
     """stores information about a game"""
 
-    def __init__(self, filename="", board="wwf15", dict="en"):
+    def __init__(self, filename="", board="wwf15", language="en", dict=""):
         """constructor for a game
 
         Args:
@@ -43,10 +43,10 @@ class  Game:
 
         resource_directory = os.path.join(resource_dir, self.board_type)
         # tile_path: tiles and their correspondig score
-        tile_path = os.path.join(resource_dir, 'dictionaries', dict+"_points.txt")
-        tile_count_path = os.path.join(resource_dir, dict+"_count.txt")
-        dictionary_path = os.path.join(resource_dir, dict+".txt")
-        saved_dictionary_path = os.path.join(resource_dir, dict+"dictionary.p")
+        tile_path = os.path.join(resource_dir, 'dictionaries', language+"_points.txt")
+        tile_count_path = os.path.join(resource_dir, 'dictionaries', language+"_count.txt")
+        dictionary_path = os.path.join(resource_dir, 'dictionaries', language+".txt")
+        saved_dictionary_path = os.path.join(resource_dir, 'dictionaries', language+"_dictionary.p")
 
         # load the list of tiles and their corresponding scores
         self.tiles = self.__load_tile_set_from_file(tile_path)
@@ -56,7 +56,6 @@ class  Game:
             # load the count of tiles
                 self.tiles_count = self.__load_tile_set_from_file(tile_count_path)
                 self.tiles_max = sum(self.tiles_count.values())
-
 
         if dict:
             self.dictionary = dict

@@ -59,62 +59,59 @@ class OcrWordfeudBoard():
         # Assume the largest contour is the board
         board_contour = contours[0]
 
+        # use a special image for crop
+        _, thresh = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+        #cv2.imwrite('images/debug-thresh.png', thresh)
+
         # Get bounding boxes
         if bottom_line_contour is not None:
             x, y, w, h = cv2.boundingRect(bottom_line_contour)
-            cropped_letters = image[y:y+h, :]
+            cropped_letters_img = thresh[y:y+h, :]
         else:
             raise ValueError("Bottom line contour not found")
 
         if board_contour is not None:
             x, y, w, h = cv2.boundingRect(board_contour)
-            plateau_game = image[y:y+h, x:x+w]
+            plateau_game_img = image[y:y+h, x:x+w] # original image is working better for board
         else:
             raise ValueError("Board contour not found")
 
-
         # Check if the cropped regions are valid
-        if cropped_letters.size == 0:
+        if cropped_letters_img.size == 0:
             raise ValueError("Cropped letters image is empty")
-        if plateau_game.size == 0:
+        if plateau_game_img.size == 0:
             raise ValueError("Plateau game image is empty")
 
+        # Resize board game to always be 960 × 960 pixels
+        plateau_game_img = cv2.resize(plateau_game_img, (960, 960))
+        # convert 16-bit to 8-bit
+        plateau_game_img = cv2.normalize(plateau_game_img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+
         # Debug
-        cv2.imwrite('images/debug-rack.png', cropped_letters)
-        cv2.imwrite('images/debug-board.png', plateau_game)
+        #cv2.imwrite('images/debug-rack.png', cropped_letters_img)
+        #cv2.imwrite('images/debug-board.png', plateau_game_img)
 
-        return cropped_letters, plateau_game
-
-
-    def get_rack_letters(self, image_path):
-        """
-        Extracts the letters from the rack in the given image.
-
-        Args:
-            image_path (str): The path to the image containing the rack.
-
-        Returns:
-            list: A list of extracted letters from the rack.
-        """
-        logger.info("Extracting rack letters...")
-        #cropped_rack = self.open_and_crop_image(image_path, 15, 1700, 930, 120)
-        cropped_rack = self.detect_rack_letters(image_path)
-        cv2.imwrite('images/debug-cropped.png', cropped_rack)
-
-        letters = []
-        square_size = cropped_rack.shape[1] // 7
-        padding = 20
+        # now, extract the letters from the rack
+        rack_letters = []
+        square_size = cropped_letters_img.shape[1] // 7
+        padding = 15
 
         for i in range(7):
             top_left_y = padding
             bottom_right_y = square_size - padding
             top_left_x = i * square_size + padding
             bottom_right_x = (i + 1) * square_size - padding * 2
-            square = cropped_rack[top_left_y:bottom_right_y, top_left_x:bottom_right_x]
+            square = cropped_letters_img[top_left_y:bottom_right_y, top_left_x:bottom_right_x]
+            #cv2.imwrite('images/tmp/'+str(i)+'.png', square)
             #print(f"top_left_y: {top_left_y}, bottom_right_y: {bottom_right_y}, top_left_x: {top_left_x}, bottom_right_x: {bottom_right_x}")
             letter = self.ocr_tile(square,threshold=2, save_image=False, comments="")
-            letters.append(letter)
-        return letters
+            rack_letters.append(letter)
+
+        # now, detect board game letters
+        squares = self.segment_board_into_squares(plateau_game_img)
+        board_letters = self.read_board(squares)
+
+        return rack_letters, board_letters
 
     def ocr_tile(self, tile, threshold=5, save_image=False, comments=""):
         """
@@ -127,16 +124,18 @@ class OcrWordfeudBoard():
             The recognized letter from the tile image, or '+' if no letter is recognized.
         """
         image = Image.fromarray(tile)
-        grayscale_image = image.convert("L")
-        binary_image = grayscale_image.point(lambda x: 255 if x > threshold else 0, mode='1')
-        letter = pytesseract.image_to_string(binary_image, config='--psm 10 --oem 3 -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZ "')
+        
+        # psm 10: Treat the image as a single character.
+        # oem 3: use best OCR engine available
+        # tessedit_char_whitelist: limit characters to A-Z and space
+        letter = pytesseract.image_to_string(image, config='--psm 10 --oem 3 -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZ "')
         if letter:
             letter = letter[0]
         else:
             letter = '%'
 
         if save_image:
-            binary_image.save('images/tmp/ocr_tile_'+letter+comments+'.png')
+            image.save('images/tmp/ocr_tile_'+letter+comments+'.png')
         if comments:
             print(f"OCR:{letter} {comments} ")
 
@@ -189,7 +188,7 @@ class OcrWordfeudBoard():
             """
             squares = []
             square_size = image.shape[0] // 15  # Assuming a standard 15x15 Scrabble board
-            padding = 8
+            padding = 8 # spaces between tiles, do not change
             for i in range(15):
                 for j in range(15):
                     top_left_y = i * square_size + padding
@@ -197,6 +196,7 @@ class OcrWordfeudBoard():
                     top_left_x = j * square_size + padding
                     bottom_right_x = (j + 1) * square_size - padding*2 - 2
                     square = image[top_left_y:bottom_right_y, top_left_x:bottom_right_x]
+                    #cv2.imwrite('images/tmp/'+str(i)+'-'+str(j)+'.png', square)
                     #print(f"top_left_y: {top_left_y}, bottom_right_y: {bottom_right_y}, top_left_x: {top_left_x}, bottom_right_x: {bottom_right_x}")
                     squares.append(square)
             return squares
@@ -219,12 +219,14 @@ class OcrWordfeudBoard():
         for square in squares:
             row = count // 15
             column = count % 15
-            #print(f"Reading square {row},{column}")
-            dominant_color = self.classify_dominant_color(square)
+            
+            dominant_color = self.classify_dominant_color(square, threshold=5)
+
+            #print(f"Reading square {row},{column}. Dominant color: {dominant_color}")
             #cv2.imwrite('images/tmp/ocr_square_'+str(row)+','+str(column)+'.png', square)
 
             if dominant_color == 'white' or dominant_color == 'yellow':
-                letter = self.ocr_tile(square, save_image=False, comments="")
+                letter = self.ocr_tile(square, save_image=True, comments=f"{row},{column}")
                 self.update_square(row, column, letter)
                 board_letters = board_letters + letter + " "
             count += 1
@@ -246,29 +248,27 @@ class OcrWordfeudBoard():
                 file.write(','.join(row) + '\n')
         print(f"Board saved to {file_path}.")
 
+    # def read_board_letters(self, image_path):
+    #     """
+    #     Reads the letters on the WordFeud board from either a saved file or an image.
 
-    def read_board_letters(self, image_path):
-        """
-        Reads the letters on the WordFeud board from either a saved file or an image.
+    #     Args:
+    #         image_path (str): The path to the image of the WordFeud board.
 
-        Args:
-            image_path (str): The path to the image of the WordFeud board.
+    #     Returns:
+    #         list: A list of letters representing the WordFeud board.
 
-        Returns:
-            list: A list of letters representing the WordFeud board.
+    #     """
+    #     logger.info("Reading WF Screenshot...")
 
-        """
-        logger.info("Reading WF Screenshot...")
-
-        # Perform the necessary operations to read the board from the image
-        cropped_board = self.open_and_crop_image(image_path, 0, 500, 960, 960)
-        #cv2.imwrite('images/cropped_board.png', cropped_board)
-        squares = self.segment_board_into_squares(cropped_board)
-        board_letters = self.read_board(squares)
-        # Uncomment to save the board to a file for quicker debugging avoiding OCR
-        #self.save_board_file(saved_board_path)
-        return board_letters
-
+    #     # Perform the necessary operations to read the board from the image
+    #     cropped_board = self.open_and_crop_image(image_path, 0, 500, 960, 960)
+    #     #cv2.imwrite('images/cropped_board.png', cropped_board)
+    #     squares = self.segment_board_into_squares(cropped_board)
+    #     board_letters = self.read_board(squares)
+    #     # Uncomment to save the board to a file for quicker debugging avoiding OCR
+    #     #self.save_board_file(saved_board_path)
+    #     return board_letters
 
 
 class Square:

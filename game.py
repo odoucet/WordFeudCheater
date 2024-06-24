@@ -39,7 +39,6 @@ def remaining_letters(game, played_letters):
 
     return tiles_left, ''.join(formatted_list)
 
-
 def find_move(image_path, ocr, wf, game):
     rack, played_letters = ocr.detect_rack_and_board(image_path)
 
@@ -48,11 +47,16 @@ def find_move(image_path, ocr, wf, game):
         for j in range(15):
             if ocr.read_square(i,j) != '  ':
                 wf.board[i][j].letter = ocr.read_square(i,j).strip()
+                print(f"({i},{j}): {wf.board[i][j].letter}")
     _ , placement = wf.all_board_words(wf.board)
+
+    # Play each word on the board with game object
     for i in placement:
         game.play(i[0], i[1], i[2])
 
     print("")
+
+    # Show the board
     game.show()
     rack = ''.join(rack)
     print(f"\nRack: {rack}\n")
@@ -60,6 +64,9 @@ def find_move(image_path, ocr, wf, game):
 
     print(f"Bag Tiles: ({count})\nTiles Left: {letter}\n")
     print("\nPossible Moves:")
+
+    print("DEBUG MODE, EXITING HERE")
+    sys.exit(0)
 
     options = game.find_best_moves(rack)
     op_max = len(options)-1
@@ -89,12 +96,12 @@ if __name__ == "__main__":
     image_path = "images/77eaf055-9426-4dae-b2ff-343d0b966362.jpg"
     ocr = OcrWordfeudBoard(image_path)
     wf = WordFeudBoard()
-    game = sc.Game(board="wordfeud", dict="fr")
+    game = sc.Game(board="wordfeud", language="fr")
 
     find_move(image_path, ocr, wf, game)
     ocr = OcrWordfeudBoard(image_path)
     wf = WordFeudBoard()
-    game = sc.Game(board="wordfeud", dict=game.dictionary)
+    game = sc.Game(board="wordfeud", language="fr", dict=game.dictionary)
 
 # TODO create a list of killer small words to not make available to the opponent
 # TODO check if tiles left over calculation is accurate

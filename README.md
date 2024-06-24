@@ -10,6 +10,10 @@ WordFeudCheater will propose the next move in a wordfeud.
 
 It does this using OCR to identify the tiles placed on the board and in the rack.
 
+## Dictionary build
+Building a dictionary requires lots of memory, that's why they are provided in the resources/dictionaries folder.
+If you modify a dictionary, remove the .p file and run the script again.
+
 ## Requirements
 * tesseract
 
@@ -19,7 +23,11 @@ sudo dnf install  https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Pack
 ```
 
 ## What's new in this fork?
-* pip requirements for easy install
-* web interface
-* handle other languages than english
-* handle multiple screen resolution
+[*] pip requirements for easy install
+[ ] web interface
+[*] handle other languages than english
+[*] handle multiple screen resolution (tested on 3 devices: xxxx)
+
+## TODO
+* move build_dictionary in a separate script
+* unit tests ^^
