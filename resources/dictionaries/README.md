@@ -7,3 +7,9 @@ In this folder, two files per languages (please respect camelcase to make it wor
 ## Number of words
 - English: 178.691
 - French:  411.430 (source: ODS8)
+
+## Source
+To add more languages, here is a starting point to know letters and points for each language : 
+https://en.wikipedia.org/wiki/Scrabble_letter_distributions
+You will then only need to add dictionaries.
+
