@@ -1,6 +1,6 @@
 WordFeudCheater
 ===============
-This work is based on the excellent and efficient scrabble solver from [astralcai](https://github.com/astralcai/scrabbler/tree/master).
+Forked from https://github.com/Cars-10/WordFeudCheater that was based on [astralcai](https://github.com/astralcai/scrabbler/tree/master).
 
 [WordFeud](https://wordfeud.com/) is a scrabble game for your mobile. My Fiance has been killing me in almost every game.
 
@@ -10,17 +10,16 @@ WordFeudCheater will propose the next move in a wordfeud.
 
 It does this using OCR to identify the tiles placed on the board and in the rack.
 
-Simply take a screenshot and Airdrop it to your Mac.
+## Requirements
+* tesseract
 
-The code checks for new screenshots (IMG_*.jpeg) every 10 seconds in your ~/Downloads directory.
+On Rocky9:
+```bash
+sudo dnf install  https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packages/t/tesseract-4.1.1-7.el9.x86_64.rpm https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packages/l/leptonica-1.80.0-4.el9.1.x86_64.rpm https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packages/t/tesseract-langpack-eng-4.1.0-3.el9.noarch.rpm         https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packages/t/tesseract-tessdata-doc-4.1.0-3.el9.noarch.rpm
+```
 
-When found will, it moves it into the images directory, analyzes the board and will propose several next moves.
-
-### Notes:
-
-* Works on my phone, not sure if it will work on yours because of different screenshot sizes based on your phone.
-
-### ToDo:
-- Emulate the competitor, by playing the next move after yours to see what possible follow up scores they could get.
-- Add a Graphical Front End using pygame.
-- Identify blank square that are played and have not points
+## What's new in this fork?
+* pip requirements for easy install
+* web interface
+* handle other languages than english
+* handle multiple screen resolution

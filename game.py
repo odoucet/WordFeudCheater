@@ -9,18 +9,6 @@ import re
 import utilities.logger as logger
 import utilities.errors as errors
 
-def poll_updated_screenshot(image_path):
-    # check if there is a new file in the directory ~/Downloads with name like IMG_*.jpeg
-    download_dir = os.path.expanduser("~/Downloads")
-    for filename in os.listdir(download_dir):
-        if filename.startswith("IMG_") and filename.endswith(".jpeg"):
-            # move the file to image_path
-            new_file_path = os.path.join(download_dir, filename)
-            shutil.move(new_file_path, image_path)
-            logger.info(f"Found new screenshot: {filename}")
-            return True
-    return False
-
 def remaining_letters(game, played_letters):
     # A list to collect keys to remove after iteration
     keys_to_remove = []
@@ -53,8 +41,8 @@ def remaining_letters(game, played_letters):
 
 
 def find_move(image_path, ocr, wf, game):
-    rack = ocr.get_rack_letters(image_path)
-    played_letters = ocr.read_board_letters(image_path)
+    rack, played_letters = ocr.detect_rack_and_board(image_path)
+
     # Transfer OCR'd board to WordFeudBoard
     for i in range(15):
         for j in range(15):
@@ -98,23 +86,15 @@ def find_move(image_path, ocr, wf, game):
             print(f"\nPlayed: {first_string} at {tuple_values} with {second_string}\n\n")
 
 if __name__ == "__main__":
-    image_path = "images/WordFeudScreenshot.jpeg"
+    image_path = "images/77eaf055-9426-4dae-b2ff-343d0b966362.jpg"
     ocr = OcrWordfeudBoard(image_path)
     wf = WordFeudBoard()
-    game = sc.Game(board="wordfeud")
+    game = sc.Game(board="wordfeud", dict="fr")
 
-    i = 0
-    while True:
-        print("")
-        while poll_updated_screenshot(image_path)==False:
-            i += 1
-            print(f"\rWaiting 10 seconds for updated screenshot {i}", end="")
-            time.sleep(10)
-        print("")
-        find_move(image_path, ocr, wf, game)
-        ocr = OcrWordfeudBoard(image_path)
-        wf = WordFeudBoard()
-        game = sc.Game(board="wordfeud", dict=game.dictionary)
+    find_move(image_path, ocr, wf, game)
+    ocr = OcrWordfeudBoard(image_path)
+    wf = WordFeudBoard()
+    game = sc.Game(board="wordfeud", dict=game.dictionary)
 
 # TODO create a list of killer small words to not make available to the opponent
 # TODO check if tiles left over calculation is accurate

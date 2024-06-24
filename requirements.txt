@@ -1,0 +1,5 @@
+numpy
+pytesseract
+matplotlib
+regexp
+opencv-python

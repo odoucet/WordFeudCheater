@@ -19,6 +19,73 @@ class OcrWordfeudBoard():
     def read_square(self, x, y):
         return self.board[x][y]
 
+    def detect_rack_and_board(self, image_path):
+        """
+        Detects the rack and board from the given image.
+        """
+        logger.info("Cut image to grab rack and board...")
+        image = cv2.imread(image_path)
+
+        if image is None:
+            raise ValueError("Image '"+image_path+"' not found or path is incorrect")
+
+        # Convert the image to grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # Apply a Canny edge detector to find edges
+        edges = cv2.Canny(gray, 50, 150)
+
+        # Dilate the edges to close gaps
+        kernel = np.ones((10, 10), np.uint8)
+        dilated_edges = cv2.dilate(edges, kernel, iterations=1)
+
+        # Find contours
+        contours, _ = cv2.findContours(dilated_edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Sort contours by area and remove small ones
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
+        
+        # Initialize variables to store the bounding boxes
+        bottom_line_contour = None
+        board_contour = None
+
+        for contour in contours:
+            x, y, w, h = cv2.boundingRect(contour)
+            # Filter by size to get the bottom line (usually the smallest height and at the bottom)
+            if h > 30 and y > image.shape[0] // 2:
+                bottom_line_contour = contour
+                break
+
+        # Assume the largest contour is the board
+        board_contour = contours[0]
+
+        # Get bounding boxes
+        if bottom_line_contour is not None:
+            x, y, w, h = cv2.boundingRect(bottom_line_contour)
+            cropped_letters = image[y:y+h, :]
+        else:
+            raise ValueError("Bottom line contour not found")
+
+        if board_contour is not None:
+            x, y, w, h = cv2.boundingRect(board_contour)
+            plateau_game = image[y:y+h, x:x+w]
+        else:
+            raise ValueError("Board contour not found")
+
+
+        # Check if the cropped regions are valid
+        if cropped_letters.size == 0:
+            raise ValueError("Cropped letters image is empty")
+        if plateau_game.size == 0:
+            raise ValueError("Plateau game image is empty")
+
+        # Debug
+        cv2.imwrite('images/debug-rack.png', cropped_letters)
+        cv2.imwrite('images/debug-board.png', plateau_game)
+
+        return cropped_letters, plateau_game
+
+
     def get_rack_letters(self, image_path):
         """
         Extracts the letters from the rack in the given image.
@@ -30,8 +97,9 @@ class OcrWordfeudBoard():
             list: A list of extracted letters from the rack.
         """
         logger.info("Extracting rack letters...")
-        cropped_rack = self.open_and_crop_image(image_path, 15, 1700, 930, 120)
-        #cv2.imwrite('images/cropped_rack.png', cropped_rack)
+        #cropped_rack = self.open_and_crop_image(image_path, 15, 1700, 930, 120)
+        cropped_rack = self.detect_rack_letters(image_path)
+        cv2.imwrite('images/debug-cropped.png', cropped_rack)
 
         letters = []
         square_size = cropped_rack.shape[1] // 7
@@ -162,14 +230,14 @@ class OcrWordfeudBoard():
             count += 1
         return board_letters
 
-    def open_and_crop_image(self, image_path, x, y, w, h):
-        img = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
-        # Resize image to always be 960 × 2079 pixels
-        # This hack should allow screenshots from other phones to be used
-        img = cv2.resize(img, (960, 2079))
-        # convert 16-bit to 8-bit
-        img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-        return img[y:y+h, x:x+w]
+    # def open_and_crop_image(self, image_path, x, y, w, h):
+    #     img = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+    #     # Resize image to always be 960 × 2079 pixels
+    #     # This hack should allow screenshots from other phones to be used
+    #     img = cv2.resize(img, (960, 2079))
+    #     # convert 16-bit to 8-bit
+    #     img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+    #     return img[y:y+h, x:x+w]
 
     # create function to save board to file
     def save_board_file(self, file_path):
