@@ -18,12 +18,15 @@ class OcrWordfeudBoard():
 
     def read_square(self, x, y):
         return self.board[x][y]
+    
+    def read_boardarray(self):
+        return self.board
 
     def detect_rack_and_board(self, image_path):
         """
         Detects the rack and board from the given image.
         """
-        logger.info("Cut image to grab rack and board...")
+        #logger.info("Cut image to grab rack and board...")
         image = cv2.imread(image_path)
 
         if image is None:

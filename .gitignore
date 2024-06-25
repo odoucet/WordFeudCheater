@@ -65,3 +65,5 @@ target/
 
 # generated files
 games
+web/img_*
+web/token_*.json
