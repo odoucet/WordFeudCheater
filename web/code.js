@@ -112,7 +112,7 @@ function sendToScrabulizer() {
     for (var i = 0; i < 15; i++) {
         for (var j = 0; j < 15; j++) {
             if (!document.getElementById(i+'_'+j)) {
-                value = '_';
+                scrabBoard += '_';
             } else {
                 value = document.getElementById(i+'_'+j).value.trim();
                 if (value === '') {
