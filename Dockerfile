@@ -1,5 +1,7 @@
 FROM rocky:9
 
+# Docker image for webservice
+
 # Install the necessary packages
 RUN dnf install https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packages/t/tesseract-4.1.1-7.el9.x86_64.rpm \
     https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packages/l/leptonica-1.80.0-4.el9.1.x86_64.rpm \
@@ -10,3 +12,6 @@ RUN dnf install https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packag
 COPY requirements.txt
 
 RUN pip install -r requirements.txt
+
+# Run php as a webserver on web/
+CMD ["php", "-S", "0.0.0.0:8123", "-t", "web/"]
