@@ -3,7 +3,7 @@
 version: '3'
 services:
   wordfeudcheater:
-    name: wordfeudcheater
+    container_name: wordfeudcheater
     build:
       context: .
       dockerfile: Dockerfile
