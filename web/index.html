@@ -56,8 +56,13 @@
             text-align: center;
         }
         #uploadedImage {
-            width: 120px;
+            width: 200px;
             margin: 10px;
+            /** align center **/
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+
         }
     </style>
 </head>
@@ -85,7 +90,7 @@
                 <div class="grid" id="boardGrid">
                     <!-- Grid inputs will be generated here -->
                 </div>
-                <input type="text" id="rackInput" placeholder="Rack">
+                <input type="text" id="rackInput" placeholder="Rack"><br />
                 <button id="sendToScrabulizer" onClick="javascript:sendToScrabulizer(); return false;">Envoyer vers Scrabulizer</button>
             </div>
         </div>

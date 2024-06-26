@@ -15,6 +15,11 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
         if (data.status == 'success') {
             // hide form-container
             document.getElementById('uploadForm').style.display = 'none';
+            document.getElementById('progressBar').style.display = 'none';
+            
+            // show image
+            document.getElementById('uploadedImage').src = data.imagePath;
+
             // show resultContainer
             document.getElementById('resultContainer').style.display = 'block';
             displayResult(data);
@@ -95,6 +100,29 @@ function displayResult(result) {
 }
 
 function sendToScrabulizer() {
-    
+    url = 'https://www.scrabulizer.com/';
 
+    // convert localResponse.board as a string with _ for empty cells
+    scrabBoard = localResponse.board.map(row => row.map(cell => cell.trim() === '' ? '_' : cell).join('')).join('');
+
+    args = {
+        r: localResponse.rack.join(''),     // TODO: handle blank as _
+        de: 'wordfeud',
+        d: 18, // 12=ODS6, 15=ODS7, 18=ODS8, 19=ODS9
+        an: 'sig',
+        rl: 7, // rack length
+        b: scrabBoard,
+    };
+
+    // redirect
+    window.location.href = url + '?' + serialize(args);
 }
+
+
+function serialize(obj) {
+    var str = [];
+    for(var p in obj)
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+    return str.join("&");
+}
+
