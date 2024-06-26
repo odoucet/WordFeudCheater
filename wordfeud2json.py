@@ -17,7 +17,7 @@ if not args.language:
 else:
     language = args.language
 
-    ocr = OcrWordfeudBoard(image_path)
+    ocr = OcrWordfeudBoard()
 
     # Read the board and rack
     rack, _ = ocr.detect_rack_and_board(image_path)

@@ -94,12 +94,12 @@ def find_move(image_path, ocr, wf, game):
 
 if __name__ == "__main__":
     image_path = "tests/test2.jpg"
-    ocr = OcrWordfeudBoard(image_path)
+    ocr = OcrWordfeudBoard()
     wf = WordFeudBoard()
     game = sc.Game(board="wordfeud", language="fr")
 
     find_move(image_path, ocr, wf, game)
-    ocr = OcrWordfeudBoard(image_path)
+    ocr = OcrWordfeudBoard()
     wf = WordFeudBoard()
     game = sc.Game(board="wordfeud", language="fr", dict=game.dictionary)
 
