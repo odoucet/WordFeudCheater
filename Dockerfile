@@ -12,7 +12,7 @@ RUN dnf install -y https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Pac
     crb enable && \
     dnf module reset php && \
     dnf module enable php:remi-8.2 -y && \
-    dnf install -y php-gd && \
+    dnf install -y php-gd php-cli && \
     dnf clean all
 
 COPY requirements.txt /tmp/.
