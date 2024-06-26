@@ -108,17 +108,25 @@ function sendToScrabulizer() {
     url = 'https://www.scrabulizer.com/';
 
     // convert localResponse.board as a string with _ for empty cells
-    scrabBoard = localResponse.board.map(row => row.map(cell => cell.trim() === '' ? '_' : cell).join('')).join('');
+    scrabBoard = '';
+    for (var i = 0; i < 15; i++) {
+        for (var j = 0; j < 15; j++) {
+            value = document.getElementById(i+'_'+j).value.trim();
+            if (value === '') {
+                scrabBoard += '_';
+            } else if (value === '%') {
+                scrabBoard += '_';  // we cannot have % (wildcard) in the board
+            } else {
+                scrabBoard += value;
+            }
+        }
+    }
 
-    // replace '%' with '_' in scrabBoard because we cannot have % (wildcard) in the board
-    scrabBoard = scrabBoard.replace(/%/g, '_');
-
-    rack = localResponse.rack.join('');
     // replace space with _ in rack because we cannot have space in the rack
-    rack = rack.replace(/ /g, '_');
+    rack = document.getElementById('rackInput').value.replace(/ /g, '_');
 
     args = {
-        r: localResponse.rack.join(''),
+        r: rack,
         de: 'wordfeud',
         d: 18, // 12=ODS6, 15=ODS7, 18=ODS8, 19=ODS9
         an: 'sig',
