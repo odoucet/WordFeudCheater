@@ -40,13 +40,12 @@ function startProgressBar(token) {
     var progressBarFill = document.getElementById('progressBarFill');
     var width = 0;
 
-    // check progress every second
+    // one test is enough to launch process
     checkResult(token);
 
     var interval = setInterval(function() {
         if (width >= 10) {
             clearInterval(interval);
-            checkResult(token);
         } else {
             width++;
             progressBarFill.style.width = width*10 + '%';
@@ -62,26 +61,33 @@ function checkResult(token) {
             // hide progress bar
             document.getElementById('progressBar').style.display = 'none';
             return response.json();
-        } else if (response.status === 204) {
-            setTimeout(() => checkResult(token), 1000); // Retry after 1 second
         } else {
             document.getElementById('errorDiv').innerHTML = 'Processing failed';
-            throw new Error('Processing failed');
+            throw new Error('Processing failed: '+response.status);
         }
     })
     .then(data => {
         if (data) {
             // hide form-container
             document.getElementById('uploadForm').style.display = 'none';
-            displayResult(data.result);
+            displayResult(data);
         }
     })
     .catch(error =>  document.getElementById('errorDiv').innerHTML = error);
 }
 
 function displayResult(result) {
+    document.getElementById('rackInput').style.display = 'block';
+    document.getElementById('sendToScrabulizer').style.display = 'block';
+
     var boardGrid = document.getElementById('boardGrid');
     boardGrid.innerHTML = ''; // Clear previous grid
+
+    if (!result.board || !Array.isArray(result.board)) {
+        document.getElementById('errorDiv').innerHTML = 'Error: board is not an array';
+        return;
+    }
+
     result.board.forEach(row => {
         row.forEach(cell => {
             var input = document.createElement('input');
@@ -89,7 +95,6 @@ function displayResult(result) {
             input.value = cell;
             // add id as x_y
             input.id = result.board.indexOf(row) + '_' + row.indexOf(cell);
-
 
             boardGrid.appendChild(input);
         });
@@ -105,8 +110,15 @@ function sendToScrabulizer() {
     // convert localResponse.board as a string with _ for empty cells
     scrabBoard = localResponse.board.map(row => row.map(cell => cell.trim() === '' ? '_' : cell).join('')).join('');
 
+    // replace '%' with '_' in scrabBoard because we cannot have % (wildcard) in the board
+    scrabBoard = scrabBoard.replace(/%/g, '_');
+
+    rack = localResponse.rack.join('');
+    // replace space with _ in rack because we cannot have space in the rack
+    rack = rack.replace(/ /g, '_');
+
     args = {
-        r: localResponse.rack.join(''),     // TODO: handle blank as _
+        r: localResponse.rack.join(''),
         de: 'wordfeud',
         d: 18, // 12=ODS6, 15=ODS7, 18=ODS8, 19=ODS9
         an: 'sig',

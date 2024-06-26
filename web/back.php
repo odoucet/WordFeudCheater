@@ -82,11 +82,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $output = json_encode($result);
                 file_put_contents($resultFile, $output);
                 echo $output;
+                exit;
             } else {
                 http_response_code(500);
-                echo json_encode(['error' => 'Processing failed.', 'debugResult' => $result]);
-                // remove json file
-                unlink($resultFile);
+                echo json_encode(['error' => 'Processing failed.', 'debugResult' => $result, 'output' => $output]);
+                exit;
             }
         } else {
             if (!isset($json['progress'])) {
@@ -96,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 // finished! return result
                 http_response_code(200);
                 echo file_get_contents($resultFile);
+                exit;
             }
         }
 

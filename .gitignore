@@ -67,3 +67,4 @@ target/
 games
 web/img_*
 web/token_*.json
+log.txt
