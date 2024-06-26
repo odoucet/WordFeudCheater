@@ -8,6 +8,11 @@ RUN dnf install -y https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Pac
     https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packages/t/tesseract-langpack-eng-4.1.0-3.el9.noarch.rpm \
     https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packages/t/tesseract-tessdata-doc-4.1.0-3.el9.noarch.rpm && \
     dnf install -y python3-pip && \
+    dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm https://rpms.remirepo.net/enterprise/remi-release-9.rpm && \
+    crb enable && \
+    dnf module reset php && \
+    dnf module enable php:remi-8.2 -y && \
+    dnf install -y php-gd && \
     dnf clean all
 
 COPY requirements.txt /tmp/.
