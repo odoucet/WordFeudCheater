@@ -9,9 +9,10 @@ RUN dnf install -y https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Pac
     https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Packages/t/tesseract-tessdata-doc-4.1.0-3.el9.noarch.rpm && \
     dnf clean all
 
-COPY requirements.txt
+COPY requirements.txt /tmp/.
 
-RUN pip install -r requirements.txt
+RUN pip install -r /tmp/requirements.txt
 
 # Run php as a webserver on web/
+WORKDIR /app
 CMD ["php", "-S", "0.0.0.0:8123", "-t", "web/"]
