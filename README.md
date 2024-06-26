@@ -24,9 +24,10 @@ sudo dnf install  https://dl.rockylinux.org/pub/rocky/9/AppStream/x86_64/os/Pack
 
 ## What's new in this fork?
 [*] pip requirements for easy install
-[ ] web interface
+[*] web interface to post grid to Scrabulizer
 [*] handle other languages than english
-[*] handle multiple screen resolution (tested on 3 devices: xxxx)
+[*] handle multiple screen resolution (tested on 2 devices: Iphone 13 and Pixel 7 )
+[*] unit tests to improve ocr and so
 
 ## TODO
 * move build_dictionary in a separate script
