@@ -111,19 +111,23 @@ function sendToScrabulizer() {
     scrabBoard = '';
     for (var i = 0; i < 15; i++) {
         for (var j = 0; j < 15; j++) {
-            value = document.getElementById(i+'_'+j).value.trim();
-            if (value === '') {
-                scrabBoard += '_';
-            } else if (value === '%') {
-                scrabBoard += '_';  // we cannot have % (wildcard) in the board
+            if (!document.getElementById(i+'_'+j)) {
+                value = '_';
             } else {
-                scrabBoard += value;
+                value = document.getElementById(i+'_'+j).value.trim();
+                if (value === '') {
+                    scrabBoard += '_';
+                } else if (value === '%') {
+                    scrabBoard += '_';  // we cannot have % (wildcard) in the board
+                } else {
+                    scrabBoard += value;
+                }
             }
         }
     }
 
     // replace space with _ in rack because we cannot have space in the rack
-    rack = document.getElementById('rackInput').value.replace(/ /g, '_');
+    rack = document.getElementById('rackInput').value.replace(/%/g, '_');
 
     args = {
         r: rack,
