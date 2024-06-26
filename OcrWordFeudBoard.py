@@ -10,7 +10,7 @@ import copy
 import utilities.logger as logger
 import utilities.errors as errors
 class OcrWordfeudBoard():
-    def __init__(self,image_path):
+    def __init__(self):
         self.board = [['  ' for _ in range(15)] for _ in range(15)]
 
     def update_square(self, x, y, value):
@@ -131,11 +131,12 @@ class OcrWordfeudBoard():
         # psm 10: Treat the image as a single character.
         # oem 3: use best OCR engine available
         # tessedit_char_whitelist: limit characters to A-Z and space
-        letter = pytesseract.image_to_string(image, config='--psm 10 --oem 3 -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZ "')
-        if letter:
-            letter = letter[0]
-        else:
+        letter = pytesseract.image_to_string(image, config='--psm 10 --oem 3 -c tessedit_char_whitelist="ABCDEFGHIJKLMNOPQRSTUVWXYZ "').strip()
+
+        if len(letter) == 0:
             letter = '%'
+        else:
+            letter = letter[0]
 
         if save_image:
             image.save('images/tmp/ocr_tile_'+letter+comments+'.png')
@@ -226,23 +227,15 @@ class OcrWordfeudBoard():
             dominant_color = self.classify_dominant_color(square, threshold=5)
 
             #print(f"Reading square {row},{column}. Dominant color: {dominant_color}")
-            #cv2.imwrite('images/tmp/ocr_square_'+str(row)+','+str(column)+'.png', square)
+            #cv2.imwrite('tests/squares/ocr_'+str(row)+','+str(column)+'-'+letter+'.png', square)
 
             if dominant_color == 'white' or dominant_color == 'yellow':
                 letter = self.ocr_tile(square, save_image=False, comments="")
+
                 self.update_square(row, column, letter)
                 board_letters = board_letters + letter + " "
             count += 1
         return board_letters
-
-    # def open_and_crop_image(self, image_path, x, y, w, h):
-    #     img = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
-    #     # Resize image to always be 960 × 2079 pixels
-    #     # This hack should allow screenshots from other phones to be used
-    #     img = cv2.resize(img, (960, 2079))
-    #     # convert 16-bit to 8-bit
-    #     img = cv2.normalize(img, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-    #     return img[y:y+h, x:x+w]
 
     # create function to save board to file
     def save_board_file(self, file_path):
@@ -250,29 +243,6 @@ class OcrWordfeudBoard():
             for row in self.board:
                 file.write(','.join(row) + '\n')
         print(f"Board saved to {file_path}.")
-
-    # def read_board_letters(self, image_path):
-    #     """
-    #     Reads the letters on the WordFeud board from either a saved file or an image.
-
-    #     Args:
-    #         image_path (str): The path to the image of the WordFeud board.
-
-    #     Returns:
-    #         list: A list of letters representing the WordFeud board.
-
-    #     """
-    #     logger.info("Reading WF Screenshot...")
-
-    #     # Perform the necessary operations to read the board from the image
-    #     cropped_board = self.open_and_crop_image(image_path, 0, 500, 960, 960)
-    #     #cv2.imwrite('images/cropped_board.png', cropped_board)
-    #     squares = self.segment_board_into_squares(cropped_board)
-    #     board_letters = self.read_board(squares)
-    #     # Uncomment to save the board to a file for quicker debugging avoiding OCR
-    #     #self.save_board_file(saved_board_path)
-    #     return board_letters
-
 
 class Square:
     def __init__(self, letter=None, modifier="Normal"):
