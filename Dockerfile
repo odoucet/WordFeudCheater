@@ -21,4 +21,4 @@ RUN pip install -r /tmp/requirements.txt
 
 # Run php as a webserver on web/
 WORKDIR /app
-CMD ["php", "-S", "localhost:8123", "-t", "web/"]
+CMD ["php", "-S", "localhost:8080", "-t", "web/"]

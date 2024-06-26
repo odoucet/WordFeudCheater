@@ -8,6 +8,6 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8123:80"
+      - "127.0.0.1:8123:8080"
     volumes:
       - .:/app
