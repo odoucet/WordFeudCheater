@@ -68,7 +68,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $json = @json_decode(file_get_contents($resultFile), true);
 
         if (filesize($resultFile) == 0 || !isset($resultFile['status']) || $resultFile['status'] == 'created') {
-            $command = escapeshellcmd("python3 ".__DIR__."/../wordfeud2json.py --language ".$json['language']." --image $imagePathTmp");
+            $cmd = "python3 ".__DIR__."/../wordfeud2json.py --language ".$json['language']." --image $imagePathTmp";
+            file_put_contents(__DIR__.'/../log.txt', date('[Ymd His]').' run '.$cmd."\n", FILE_APPEND);
+            $command = escapeshellcmd($cmd);
             $output = shell_exec($command);
 
             $result = @json_decode($output, true);
