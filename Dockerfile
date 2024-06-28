@@ -20,6 +20,12 @@ COPY requirements.txt /tmp/.
 
 RUN pip install -r /tmp/requirements.txt
 
+# Change some php settings
+RUN echo "date.timezone = Europe/Paris" >  /etc/php.d/zz-custom.ini && \
+    echo "memory_limit = 512M" >> /etc/php.d/zz-custom.ini && \
+    echo "upload_max_filesize = 11M" >> /etc/php.d/zz-custom.ini && \
+    echo "post_max_size = 11M" >> /etc/php.d/zz-custom.ini
+
 # Run php as a webserver on web/
 WORKDIR /app
 CMD ["php", "-S", "0.0.0.0:8080", "-t", "web/"]

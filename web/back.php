@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         } else {
             http_response_code(400);
-            echo json_encode(['error' => 'Invalid image type.']);
+            echo json_encode(['error' => 'Upload error: '.getUploadError($image['error'])]);
         }
     } else {
         http_response_code(400);
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         if (filesize($resultFile) == 0 || !isset($resultFile['status']) || $resultFile['status'] == 'created') {
             $cmd = "python3 ".__DIR__."/../wordfeud2json.py --language ".$json['language']." --image $imagePathTmp";
-            file_put_contents(__DIR__.'/../log.txt', date('[Ymd His]').' run '.$cmd."\n", FILE_APPEND);
+            writeDebug(' run '.$cmd);
             $command = escapeshellcmd($cmd);
             $output = shell_exec($command);
 
@@ -139,4 +139,24 @@ function resizeAndConvert($imagePath, $outputPath) {
     // Free up memory
     imagedestroy($image);
     imagedestroy($newImage);
+}
+
+function writeDebug($msg)
+{
+    file_put_contents(__DIR__.'/../log.txt', date('[Ymd His]').' '.$msg."\n", FILE_APPEND);
+}
+
+function getUploadError($code)
+{
+    $phpFileUploadErrors = array(
+        0 => 'There is no error, the file uploaded with success',
+        1 => 'The uploaded file exceeds 10MB',
+        2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
+        3 => 'The uploaded file was only partially uploaded',
+        4 => 'No file was uploaded',
+        6 => 'Missing a temporary folder',
+        7 => 'Failed to write file to disk.',
+        8 => 'A PHP extension stopped the file upload.',
+    );
+    return $phpFileUploadErrors[$code];
 }

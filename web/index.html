@@ -71,6 +71,7 @@
         <h1>WordFeud to Scrabulizer</h1>
         <div class="form-container">
             <form id="uploadForm" enctype="multipart/form-data">
+                <input type="hidden" name="MAX_FILE_SIZE" value="10000000" /> <!-- 10Mi -->
                 <input type="file" name="image" accept="image/*" required><br><br>
                 <select name="language" required>
                     <option value="fr">Français</option>
