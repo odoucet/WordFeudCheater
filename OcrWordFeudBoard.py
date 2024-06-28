@@ -107,8 +107,16 @@ class OcrWordfeudBoard():
             square = cropped_letters_img[top_left_y:bottom_right_y, top_left_x:bottom_right_x]
             #cv2.imwrite('images/tmp/'+str(i)+'.png', square)
             #print(f"top_left_y: {top_left_y}, bottom_right_y: {bottom_right_y}, top_left_x: {top_left_x}, bottom_right_x: {bottom_right_x}")
-            letter = self.ocr_tile(square,threshold=2, save_image=False, comments="")
-            rack_letters.append(letter)
+            
+            # check if square is majority white:
+            white_pixels = cv2.countNonZero(square)
+            total_pixels = square.shape[0] * square.shape[1]
+            if white_pixels / total_pixels > 0.5:
+                # DEBUG POINT TO RECORD SQUARES THAT ARE NOT WORKING
+                #if i == 2:
+                #    cv2.imwrite('tests/squares/00ocr_'+str(i)+'-UNK.png', square)
+                letter = self.ocr_tile(square,threshold=2, save_image=False, comments="")
+                rack_letters.append(letter)
 
         # now, detect board game letters
         squares = self.segment_board_into_squares(plateau_game_img)
@@ -226,8 +234,9 @@ class OcrWordfeudBoard():
             
             dominant_color = self.classify_dominant_color(square, threshold=5)
 
-            #print(f"Reading square {row},{column}. Dominant color: {dominant_color}")
-            #cv2.imwrite('tests/squares/ocr_'+str(row)+','+str(column)+'-'+letter+'.png', square)
+            # Debug not working image: add condition here to write specific tile for not working tests:
+            #if row == 10 and column == 14:
+            #    cv2.imwrite('tests/squares/00ocr_'+str(row)+','+str(column)+'-UNK.png', square)
 
             if dominant_color == 'white' or dominant_color == 'yellow':
                 letter = self.ocr_tile(square, save_image=False, comments="")
