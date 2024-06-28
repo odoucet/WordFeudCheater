@@ -4,20 +4,27 @@ from OcrWordFeudBoard import OcrWordfeudBoard
 import cv2
 
 tests = [
-    # {
-    #     "image_path": "tests/screens/test1.jpg",
-    #     "rack": "GGORTIE",
-    #     "played_letters": {
-    #         'CHENUE', 'OUREZ', 'OUKAS', 'AWA'
-    #     }
-    # },
+    {
+        "image_path": "tests/screens/test1.jpg",
+        "rack": "GGORTIE",
+        "played_letters": {
+            'CHENUE', 'OUREZ', 'OUKAS', 'AWA'
+        }
+    },
     {
         "image_path": "tests/screens/test2.jpg",
         "rack": "EJECSLN",
         "played_letters": {
             'DROIT', 'TYPO', 'UEE', 'HUEZ', 'LGS', 'UNS', 'CRAME', 'FNIONS', 'LUI', 'HIT', 'BMBER', 'LSE', 'XONS', 'VDKA', 'DEWAR', 'MOQUIT', 'BUTINEES', 'EVIE'
         }
-    }
+    },
+    {
+        "image_path": "tests/screens/test3.png",
+        "rack": "FAILC",
+        "played_letters": {
+            'GAIE', 'TAL','RAT', 'EANS', 'DROIT','YPO', 'UEE', 'HUEZ', 'LGS', 'UNS', 'FANIOS','CRMEZ', 'LUI', 'HIT', 'JE', 'BMBER','LSE','XONS','VDKA','DEWAR','MOQIT','EVIE', 'BUTIEES'
+        }
+    },
 ]
 
 class TestOcr(unittest.TestCase):
